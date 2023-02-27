@@ -4,6 +4,7 @@ echo "branchname is: ${env.BRANCH_NAME}"
 echo "jenkins home is: ${env.JENKINS_HOME}"
 echo "jenkins url is: ${env.JENKINS_URL}"
 def mavenhome = tool name: "maven3.8.5"
+    try{
 stage ('checkoutcode'){
 git branch: 'developmen', credentialsId: '38e0e02c-c5d0-415e-a2f0-8f2fb433566e', url: 'https://github.com/Maruthi9948/maven-web-application.git'
     
@@ -24,6 +25,7 @@ sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@43
 }
 }
 }*/
+}
 }
 def slack(String buildStatus = 'STARTED') {
     // Build status of null means success.
@@ -46,15 +48,14 @@ def slack(String buildStatus = 'STARTED') {
     slackSend(color: color, message: msg)
 }
 
-node {
-    try {
-        slack()
+
+  
 
         // Existing build steps.
-    } catch (e) {
+ catch (e) {
         currentBuild.result = 'FAILURE'
         throw e
     } finally {
         slack(currentBuild.result)
     }
-}
+
