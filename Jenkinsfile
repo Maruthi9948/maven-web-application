@@ -7,7 +7,7 @@ def mavenhome = tool name: "maven3.8.5"
    try {
       notifyBuild('STARTED')
 stage ('checkoutcode'){
-git branch: 'developmen', credentialsId: '38e0e02c-c5d0-415e-a2f0-8f2fb433566e', url: 'https://github.com/Maruthi9948/maven-web-application.git'
+git branch: 'development', credentialsId: '38e0e02c-c5d0-415e-a2f0-8f2fb433566e', url: 'https://github.com/Maruthi9948/maven-web-application.git'
     
 }
 stage ( 'build'){
