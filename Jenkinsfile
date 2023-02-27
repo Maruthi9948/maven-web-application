@@ -24,7 +24,8 @@ sshagent(['d6ac356e-8c18-48db-b56e-e53b6f32fec7']) {
 sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@43.205.140.11:/opt/apache-tomcat-9.0.71/webapps/"
 }
 }
-}*/
+*/
+}
 
 
 def slack(String buildStatus = 'STARTED') {
