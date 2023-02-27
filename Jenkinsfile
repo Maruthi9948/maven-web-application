@@ -9,14 +9,14 @@ stage ('checkoutcode'){
 git branch: 'developmen', credentialsId: '38e0e02c-c5d0-415e-a2f0-8f2fb433566e', url: 'https://github.com/Maruthi9948/maven-web-application.git'
     
 }
-stage( 'build'){
+stage ( 'build'){
 sh "${mavenhome}/bin/mvn clean package"
 }
 /* stage ( 'execute sonarqubereport'){
 withSonarQubeEnv('SonarQube9.6.1'){
 sh "${mavenhome}/bin/mvn sonar:sonar"
 }
-stage ( 'artifactsreponexus'){
+stage ('artifactsreponexus'){
 sh "${mavenhome}/bin/mvn deploy"
 }
 stage( 'deployintotomcatserver'){
@@ -26,6 +26,19 @@ sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@43
 }
 */
 }
+node {
+    try {
+        notifySlack()
+
+        // Existing build steps.
+    } catch (e) {
+        currentBuild.result = "FAILURE"
+       
+    } finally {
+        notifySlack(currentBuild.result)
+    }
+}
+
 
 def notifySlack(String buildStatus = 'STARTED') {
     // Build status of null means success.
@@ -46,18 +59,6 @@ def notifySlack(String buildStatus = 'STARTED') {
     def msg = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}"
 
     slackSend(color: color, message: msg)
-}
 
-node {
-    try {
-        notifySlack()
-
-        // Existing build steps.
-    } catch (e) {
-        currentBuild.result = "FAILURE"
-       
-    } finally {
-        notifySlack(currentBuild.result)
-    }
 }
 
