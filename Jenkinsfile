@@ -54,7 +54,7 @@ node {
 
         // Existing build steps.
     } catch (e) {
-        currentBuild.result = 'FAILURE'
+        currentBuild.result = "FAILURE"
        
     } finally {
         notifySlack(currentBuild.result)
