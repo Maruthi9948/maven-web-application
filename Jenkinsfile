@@ -25,7 +25,7 @@ sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@43
 }
 }*/
 }
-def notifySlack(String buildStatus = 'STARTED') {
+def slack(String buildStatus = 'STARTED') {
     // Build status of null means success.
     buildStatus = buildStatus ?: 'SUCCESS'
 
@@ -55,6 +55,6 @@ node {
         currentBuild.result = 'FAILURE'
         throw e
     } finally {
-        notifySlack(currentBuild.result)
+        slack(currentBuild.result)
     }
 }
