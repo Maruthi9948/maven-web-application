@@ -48,7 +48,7 @@ def slack(String buildStatus = 'STARTED') {
 
 node {
     try {
-        notifySlack()
+        slack()
 
         // Existing build steps.
     } catch (e) {
