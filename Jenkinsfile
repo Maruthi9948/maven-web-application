@@ -4,7 +4,8 @@ echo "branchname is: ${env.BRANCH_NAME}"
 echo "jenkins home is: ${env.JENKINS_HOME}"
 echo "jenkins url is: ${env.JENKINS_URL}"
 def mavenhome = tool name: "maven3.8.5"
-   
+   try {
+      notifyBuild('STARTED')
 stage ('checkoutcode'){
 git branch: 'developmen', credentialsId: '38e0e02c-c5d0-415e-a2f0-8f2fb433566e', url: 'https://github.com/Maruthi9948/maven-web-application.git'
     
@@ -25,40 +26,40 @@ sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@43
 }
 }
 */
-}
-node {
-    try {
-        notifySlack()
 
-        // Existing build steps.
-    } catch (e) {
-        currentBuild.result = "FAILURE"
-       
-    } finally {
-        notifySlack(currentBuild.result)
-    }
+ } 
+catch (e) {
+    // If there was an exception thrown, the build failed
+    currentBuild.result = "FAILURE"
+    throw e
+  } finally {
+    // Success or failure, always send notifications
+    notifyBuild(currentBuild.result)
+  }
 }
 
+def notifyBuild(String buildStatus = 'STARTED') {
+  // build status of null means successful
+  buildStatus =  buildStatus ?: 'SUCCESSFUL'
 
-def notifySlack(String buildStatus = 'STARTED') {
-    // Build status of null means success.
-    buildStatus = buildStatus ?: 'SUCCESS'
+  // Default values
+  def colorName = 'RED'
+  def colorCode = '#FF0000'
+  def subject = "${buildStatus}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'"
+  def summary = "${subject} (${env.BUILD_URL})"
 
-    def color
+  // Override default values based on build status
+  if (buildStatus == 'STARTED') {
+    color = 'YELLOW'
+    colorCode = '#FFFF00'
+  } else if (buildStatus == 'SUCCESSFUL') {
+    color = 'GREEN'
+    colorCode = '#00FF00'
+  } else {
+    color = 'RED'
+    colorCode = '#FF0000'
+  }
 
-    if (buildStatus == 'STARTED') {
-        color = '#D4DADF'
-    } else if (buildStatus == 'SUCCESS') {
-        color = '#BDFFC3'
-    } else if (buildStatus == 'UNSTABLE') {
-        color = '#FFFE89'
-    } else (buildStatus == 'FAILURE') {
-        color = '#FF9FA1'
-    }
-
-    def msg = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}"
-
-    slackSend(color: color, message: msg)
-
+  // Send notifications
+  slackSend (color: colorCode, message: summary)
 }
-
